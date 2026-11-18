@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% from "_macros.html" import icon, csrf %}
+{% block title %}Students{% endblock %}
+{% block heading %}Students{% endblock %}
+{% block actions %}
+  <a class="btn btn-primary" href="{{ url_for('add_student') }}">{{ icon('plus') }}Register student</a>
+{% endblock %}
+
+{% block content %}
+<section class="card">
+  <form class="toolbar" method="get" action="{{ url_for('students') }}">
+    <div class="search">
+      {{ icon('search') }}
+      <input type="search" name="q" value="{{ q }}" placeholder="Search by name, student ID, email or phone" aria-label="Search students">
+    </div>
+    <button type="submit" class="btn btn-primary">Search</button>
+    {% if q %}<a class="btn btn-ghost" href="{{ url_for('students') }}">Reset</a>{% endif %}
+  </form>
+
+  <p class="result-count">{{ students|length }} student{{ '' if students|length == 1 else 's' }} found</p>
+
+  <div class="table-wrap">
+    <table class="table">
+      <thead>
+        <tr><th>Student ID</th><th>Name</th><th>Email</th><th>Contact</th><th class="num">Books out</th><th class="actions-col">Actions</th></tr>
+      </thead>
+      <tbody>
+      {% for s in students %}
+        <tr>
+          <td data-label="Student ID" class="mono">{{ s.student_id }}</td>
+          <td data-label="Name"><strong>{{ s.name }}</strong></td>
+          <td data-label="Email">{{ s.email }}</td>
+          <td data-label="Contact">{{ s.contact }}</td>
+          <td data-label="Books out" class="num"><span class="badge {{ 'badge-info' if s.active_loans else 'badge-muted' }}">{{ s.active_loans }}</span></td>
+          <td class="actions-col">
+            <div class="row-actions">
+              <a class="btn btn-sm btn-ghost" href="{{ url_for('edit_student', pk=s.id) }}">Edit</a>
+              <form method="post" action="{{ url_for('delete_student', pk=s.id) }}"
+                    data-confirm="Delete student &quot;{{ s.name }}&quot;? Their issue history will also be removed. This cannot be undone.">
+                {{ csrf() }}
+                <button type="submit" class="btn btn-sm btn-danger-soft">Delete</button>
+              </form>
+            </div>
+          </td>
+        </tr>
+      {% else %}
+        <tr><td colspan="6" class="empty">No students match your search.</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

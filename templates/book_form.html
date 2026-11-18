@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% from "_macros.html" import icon, csrf, field %}
+{% set editing = book is not none %}
+{% block title %}{{ 'Edit book' if editing else 'Add book' }}{% endblock %}
+{% block heading %}{{ 'Edit book' if editing else 'Add a new book' }}{% endblock %}
+
+{% block content %}
+<section class="card form-card">
+  <form method="post" data-once>
+    {{ csrf() }}
+    <div class="form-grid">
+      <div class="span-2">{{ field('title', 'Title', form, errors, placeholder='e.g. Clean Code', attrs='maxlength="200"') }}</div>
+      {{ field('author', 'Author', form, errors, placeholder='e.g. Robert C. Martin', attrs='maxlength="150"') }}
+      {{ field('isbn', 'ISBN', form, errors, placeholder='10 or 13 digits', attrs='maxlength="17"') }}
+      <div class="field{% if errors.get('category') %} has-error{% endif %}">
+        <label for="category">Category <span class="req">*</span></label>
+        <input id="category" name="category" list="category-list" value="{{ form.get('category', '') }}"
+               placeholder="Pick or type a category" maxlength="60" required>
+        <datalist id="category-list">{% for c in categories %}<option value="{{ c }}">{% endfor %}</datalist>
+        {% if errors.get('category') %}<p class="field-error">{{ errors['category'] }}</p>{% endif %}
+      </div>
+      {{ field('quantity', 'Quantity (total copies)', form, errors, type='number', attrs='min="0" max="1000" step="1"') }}
+    </div>
+    {% if editing %}
+    <p class="form-note">{{ issued_count }} cop{{ 'y is' if issued_count == 1 else 'ies are' }} currently issued, so quantity cannot go below {{ issued_count }}. Available copies are recalculated automatically.</p>
+    {% endif %}
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary">{{ 'Save changes' if editing else 'Add book' }}</button>
+      <a class="btn btn-ghost" href="{{ url_for('books') }}">Cancel</a>
+    </div>
+  </form>
+</section>
+{% endblock %}

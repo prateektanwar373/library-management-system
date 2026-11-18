@@ -1,0 +1,18 @@
+{% macro icon(name) %}<svg class="icon" aria-hidden="true"><use href="#i-{{ name }}"/></svg>{% endmacro %}
+
+{% macro csrf() %}<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">{% endmacro %}
+
+{% macro field(name, label, form, errors, type="text", placeholder="", required=True, attrs="") %}
+<div class="field{% if errors.get(name) %} has-error{% endif %}">
+  <label for="{{ name }}">{{ label }}{% if required %} <span class="req">*</span>{% endif %}</label>
+  <input id="{{ name }}" name="{{ name }}" type="{{ type }}" value="{{ form.get(name, '') }}"
+         placeholder="{{ placeholder }}" {% if required %}required{% endif %} {{ attrs|safe }}>
+  {% if errors.get(name) %}<p class="field-error">{{ errors[name] }}</p>{% endif %}
+</div>
+{% endmacro %}
+
+{% macro status_badge(row) %}
+  {% if row.status == 'Returned' %}<span class="badge badge-success">Returned</span>
+  {% elif row.is_overdue %}<span class="badge badge-danger">Overdue</span>
+  {% else %}<span class="badge badge-info">Issued</span>{% endif %}
+{% endmacro %}

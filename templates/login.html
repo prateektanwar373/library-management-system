@@ -1,0 +1,41 @@
+{% from "_macros.html" import csrf %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Admin Login · Library Management System</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="login-body">
+<main class="login-card">
+  <div class="login-brand">
+    <span class="brand-mark">
+      <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+    </span>
+    <div>
+      <h1>LibraryMS</h1>
+      <p>Library Management System</p>
+    </div>
+  </div>
+  <h2>Admin sign in</h2>
+  <form method="post" action="{{ url_for('login') }}" data-once novalidate>
+    {{ csrf() }}
+    <div class="field{% if errors.get('username') %} has-error{% endif %}">
+      <label for="username">Username</label>
+      <input id="username" name="username" type="text" value="{{ username }}" autocomplete="username" autofocus required>
+      {% if errors.get('username') %}<p class="field-error">{{ errors['username'] }}</p>{% endif %}
+    </div>
+    <div class="field{% if errors.get('password') %} has-error{% endif %}">
+      <label for="password">Password</label>
+      <input id="password" name="password" type="password" autocomplete="current-password" required>
+      {% if errors.get('password') %}<p class="field-error">{{ errors['password'] }}</p>{% endif %}
+    </div>
+    <button type="submit" class="btn btn-primary btn-block">Sign in</button>
+  </form>
+  <p class="login-hint">Use the admin account created when you ran <code>python database.py</code>.</p>
+</main>
+{% include "_flashes.html" %}
+<script src="{{ url_for('static', filename='js/app.js') }}" defer></script>
+</body>
+</html>

@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% from "_macros.html" import icon %}
+{% block title %}Dashboard{% endblock %}
+{% block heading %}Dashboard{% endblock %}
+{% block actions %}
+  <a class="btn btn-primary" href="{{ url_for('issue_book') }}">{{ icon('out') }}Issue a book</a>
+{% endblock %}
+
+{% block content %}
+<section class="stats">
+  <article class="stat">
+    <span class="stat-icon tone-indigo">{{ icon('book') }}</span>
+    <div><p class="stat-value">{{ stats.total_books }}</p><p class="stat-label">Total books <small>({{ stats.titles }} titles)</small></p></div>
+  </article>
+  <article class="stat">
+    <span class="stat-icon tone-green">{{ icon('check') }}</span>
+    <div><p class="stat-value">{{ stats.available }}</p><p class="stat-label">Available books</p></div>
+  </article>
+  <article class="stat">
+    <span class="stat-icon tone-blue">{{ icon('out') }}</span>
+    <div><p class="stat-value">{{ stats.issued }}</p><p class="stat-label">Currently issued</p></div>
+  </article>
+  <article class="stat">
+    <span class="stat-icon tone-amber">{{ icon('users') }}</span>
+    <div><p class="stat-value">{{ stats.students }}</p><p class="stat-label">Registered students</p></div>
+  </article>
+  <a class="stat stat-link{% if stats.overdue %} stat-alert{% endif %}" href="{{ url_for('overdue') }}">
+    <span class="stat-icon tone-red">{{ icon('alert') }}</span>
+    <div><p class="stat-value">{{ stats.overdue }}</p><p class="stat-label">Overdue books</p></div>
+  </a>
+</section>
+
+<div class="grid-2">
+  <section class="card">
+    <div class="card-head"><h2>Recent activity</h2><a href="{{ url_for('transactions') }}" class="link">View all</a></div>
+    {% if recent %}
+    <ul class="activity">
+      {% for item in recent %}
+      <li>
+        <span class="dot {{ 'dot-out' if item.action == 'Issued' else 'dot-in' }}">{{ icon('out' if item.action == 'Issued' else 'in') }}</span>
+        <div class="activity-text">
+          <strong>{{ item.title }}</strong>
+          <span>{{ 'issued to' if item.action == 'Issued' else 'returned by' }} {{ item.student_name }}</span>
+        </div>
+        <time>{{ item.event_date|pretty_date }}</time>
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <p class="empty">No issue or return activity yet.</p>
+    {% endif %}
+  </section>
+
+  <section class="card">
+    <div class="card-head"><h2>Quick actions</h2></div>
+    <div class="quick">
+      <a class="quick-item" href="{{ url_for('add_book') }}">{{ icon('plus') }}<span>Add a new book</span></a>
+      <a class="quick-item" href="{{ url_for('add_student') }}">{{ icon('plus') }}<span>Register a student</span></a>
+      <a class="quick-item" href="{{ url_for('issue_book') }}">{{ icon('out') }}<span>Issue a book</span></a>
+      <a class="quick-item" href="{{ url_for('transactions', status='issued') }}">{{ icon('in') }}<span>Return a book</span></a>
+      <a class="quick-item" href="{{ url_for('overdue') }}">{{ icon('alert') }}<span>Review overdue books</span></a>
+    </div>
+  </section>
+</div>
+{% endblock %}

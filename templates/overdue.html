@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% from "_macros.html" import icon, csrf %}
+{% block title %}Overdue books{% endblock %}
+{% block heading %}Overdue books{% endblock %}
+
+{% block content %}
+<section class="card">
+  <p class="result-count">{{ rows|length }} overdue book{{ '' if rows|length == 1 else 's' }}, longest overdue first</p>
+  <div class="table-wrap">
+    <table class="table">
+      <thead>
+        <tr><th>Book</th><th>Student</th><th>Contact</th><th>Issued</th><th>Due</th><th class="num">Days overdue</th><th class="actions-col">Action</th></tr>
+      </thead>
+      <tbody>
+      {% for r in rows %}
+        <tr>
+          <td data-label="Book"><strong>{{ r.title }}</strong></td>
+          <td data-label="Student">{{ r.student_name }} <span class="muted mono">{{ r.roll_no }}</span></td>
+          <td data-label="Contact">{{ r.contact }}</td>
+          <td data-label="Issued">{{ r.issue_date|pretty_date }}</td>
+          <td data-label="Due" class="text-danger">{{ r.due_date|pretty_date }}</td>
+          <td data-label="Days overdue" class="num"><span class="badge badge-danger">{{ r.days_overdue }}</span></td>
+          <td class="actions-col">
+            <form method="post" action="{{ url_for('return_book', tx_id=r.id) }}">
+              {{ csrf() }}
+              <input type="hidden" name="next" value="{{ url_for('overdue') }}">
+              <button type="submit" class="btn btn-sm btn-primary">Mark returned</button>
+            </form>
+          </td>
+        </tr>
+      {% else %}
+        <tr><td colspan="7" class="empty">Nothing is overdue. 🎉</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% from "_macros.html" import icon, csrf, status_badge %}
+{% set returning = status == 'issued' %}
+{% block title %}{{ 'Return books' if returning else 'History' }}{% endblock %}
+{% block heading %}{{ 'Return books' if returning else 'Issue & return history' }}{% endblock %}
+{% block actions %}
+  <a class="btn btn-primary" href="{{ url_for('issue_book') }}">{{ icon('out') }}Issue a book</a>
+{% endblock %}
+
+{% block content %}
+<section class="card">
+  <form class="toolbar" method="get" action="{{ url_for('transactions') }}">
+    <div class="search">
+      {{ icon('search') }}
+      <input type="search" name="q" value="{{ q }}" placeholder="Search by book, student name or student ID" aria-label="Search transactions">
+    </div>
+    <select name="status" aria-label="Filter by status" data-autosubmit>
+      <option value="">All records</option>
+      <option value="issued" {{ 'selected' if status == 'issued' }}>Currently issued</option>
+      <option value="overdue" {{ 'selected' if status == 'overdue' }}>Overdue</option>
+      <option value="returned" {{ 'selected' if status == 'returned' }}>Returned</option>
+    </select>
+    <button type="submit" class="btn btn-primary">Search</button>
+    {% if q or status %}<a class="btn btn-ghost" href="{{ url_for('transactions') }}">Reset</a>{% endif %}
+  </form>
+
+  <p class="result-count">{{ rows|length }} record{{ '' if rows|length == 1 else 's' }}</p>
+
+  <div class="table-wrap">
+    <table class="table">
+      <thead>
+        <tr><th>#</th><th>Book</th><th>Student</th><th>Issued</th><th>Due</th><th>Returned</th><th>Status</th><th class="actions-col">Action</th></tr>
+      </thead>
+      <tbody>
+      {% for r in rows %}
+        <tr>
+          <td data-label="#">{{ r.id }}</td>
+          <td data-label="Book"><strong>{{ r.title }}</strong></td>
+          <td data-label="Student">{{ r.student_name }} <span class="muted mono">{{ r.roll_no }}</span></td>
+          <td data-label="Issued">{{ r.issue_date|pretty_date }}</td>
+          <td data-label="Due" class="{{ 'text-danger' if r.is_overdue }}">{{ r.due_date|pretty_date }}</td>
+          <td data-label="Returned">{{ r.return_date|pretty_date }}</td>
+          <td data-label="Status">{{ status_badge(r) }}</td>
+          <td class="actions-col">
+            {% if r.status == 'Issued' %}
+            <form method="post" action="{{ url_for('return_book', tx_id=r.id) }}">
+              {{ csrf() }}
+              <input type="hidden" name="next" value="{{ request.full_path.rstrip('?') }}">
+              <button type="submit" class="btn btn-sm btn-primary">Return</button>
+            </form>
+            {% else %}<span class="muted">—</span>{% endif %}
+          </td>
+        </tr>
+      {% else %}
+        <tr><td colspan="8" class="empty">No records found.</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

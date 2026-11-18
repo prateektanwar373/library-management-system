@@ -1,0 +1,66 @@
+{% from "_macros.html" import icon, csrf %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Dashboard{% endblock %} · Library Management System</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+{% include "_icons.html" %}
+{% set ep = request.endpoint %}
+{% set tx_status = request.args.get('status', '') %}
+<div class="app">
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <span class="brand-mark">{{ icon('book') }}</span>
+      <span class="brand-text">LibraryMS<small>Admin console</small></span>
+    </div>
+    <nav class="nav" aria-label="Main">
+      <a href="{{ url_for('dashboard') }}" class="{{ 'active' if ep == 'dashboard' }}">{{ icon('grid') }}Dashboard</a>
+      <a href="{{ url_for('books') }}" class="{{ 'active' if ep in ('books', 'add_book', 'edit_book') }}">{{ icon('book') }}Books</a>
+      <a href="{{ url_for('students') }}" class="{{ 'active' if ep in ('students', 'add_student', 'edit_student') }}">{{ icon('users') }}Students</a>
+      <div class="nav-label">Circulation</div>
+      <a href="{{ url_for('issue_book') }}" class="{{ 'active' if ep == 'issue_book' }}">{{ icon('out') }}Issue Book</a>
+      <a href="{{ url_for('transactions', status='issued') }}" class="{{ 'active' if ep == 'transactions' and tx_status == 'issued' }}">{{ icon('in') }}Return Books</a>
+      <a href="{{ url_for('transactions') }}" class="{{ 'active' if ep == 'transactions' and tx_status != 'issued' }}">{{ icon('clock') }}History</a>
+      <a href="{{ url_for('overdue') }}" class="{{ 'active' if ep == 'overdue' }}">{{ icon('alert') }}Overdue</a>
+    </nav>
+    <div class="sidebar-foot">
+      <div class="who"><span class="avatar">{{ (session.get('admin_name') or 'A')[0]|upper }}</span>
+        <span>{{ session.get('admin_name') }}<small>Administrator</small></span></div>
+      <form method="post" action="{{ url_for('logout') }}">
+        {{ csrf() }}
+        <button type="submit" class="btn btn-sidebar">{{ icon('logout') }}Log out</button>
+      </form>
+    </div>
+  </aside>
+  <div class="backdrop" data-sidebar-close></div>
+
+  <div class="main">
+    <header class="topbar">
+      <button type="button" class="menu-btn" data-sidebar-toggle aria-label="Open menu">{{ icon('menu') }}</button>
+      <h1 class="page-title">{% block heading %}Dashboard{% endblock %}</h1>
+      <div class="topbar-actions">{% block actions %}{% endblock %}</div>
+    </header>
+    <main class="content">
+      {% block content %}{% endblock %}
+    </main>
+  </div>
+</div>
+
+{% include "_flashes.html" %}
+
+<dialog id="confirm-dialog" class="dialog">
+  <h2>Please confirm</h2>
+  <p data-confirm-message></p>
+  <div class="dialog-actions">
+    <button type="button" class="btn btn-ghost" data-confirm-cancel>Cancel</button>
+    <button type="button" class="btn btn-danger" data-confirm-ok>Yes, continue</button>
+  </div>
+</dialog>
+
+<script src="{{ url_for('static', filename='js/app.js') }}" defer></script>
+</body>
+</html>
